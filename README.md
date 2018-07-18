@@ -1,5 +1,7 @@
 # pretty_print_formatter
 
+![Screenshot](screenshot.png)
+
 Elixir library for coloring the output of the logger. Right now it colorizes Ecto SQL statements and Phoenix's request id metadata.
 
 The idea is to use colors as a way to help developers to spot easier in the console what's happening quickly.
