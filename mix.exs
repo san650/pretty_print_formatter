@@ -8,6 +8,7 @@ defmodule PrettyPrintFormatter.Mixfile do
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       deps: deps(),
+      description: description(),
       package: package(),
     ]
   end
@@ -30,5 +31,11 @@ defmodule PrettyPrintFormatter.Mixfile do
       maintainers: ["Santiago Ferreira", "Juan Azambuja"],
       name: :pretty_print_formatter,
     ]
+  end
+
+  defp description do
+    """
+    Library for coloring the output of the logger. Right now it colorizes Ecto SQL statements and Phoenix's request id metadata.
+    """
   end
 end
