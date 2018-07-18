@@ -137,7 +137,7 @@ defmodule PrettyPrintFormatter.Ecto do
     [" ", to_string(value), format(rest)]
   end
 
-  defp format([{:name, name} = tuple | rest], :bright) do
+  defp format([{:name, name} | rest], :bright) do
     [:bright, cleanup(name), :normal, format(rest)]
   end
 

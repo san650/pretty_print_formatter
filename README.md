@@ -25,7 +25,7 @@ After installing the dependency you need to update the config/dev.exs
 configuration file and set the new formatter.
 
 
-```
+```elixir
 config :logger, :console, format: {PrettyPrintFormatter, :write}
 ```
 

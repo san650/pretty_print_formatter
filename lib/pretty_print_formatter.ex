@@ -28,7 +28,7 @@ defmodule PrettyPrintFormatter do
     flush(level, [id | message], timestamp, [])
   end
 
-  defp flush(level, message, _timestamp, _metadata) do
+  defp flush(_level, message, _timestamp, _metadata) do
     try do
       [message, "\n"] |> IO.ANSI.format
     rescue
