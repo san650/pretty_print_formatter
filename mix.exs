@@ -24,7 +24,7 @@ defmodule PrettyPrintFormatter.Mixfile do
 
   defp package do
     [
-      files: ["lib", "src", "mix.exs", "README*", "LICENSE*"],
+      files: ["lib", "src", "mix.exs", "README.md", "LICENSE"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/san650/pretty_print_formatter"},
       maintainers: ["Santiago Ferreira", "Juan Azambuja"],

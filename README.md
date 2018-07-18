@@ -1,6 +1,12 @@
-# PrettyPrintFormatter
+# pretty_print_formatter
 
-**TODO: Add description**
+Elixir library for coloring the output of the logger. Right now it colorizes Ecto SQL statements and Phoenix's request id metadata.
+
+The idea is to use colors as a way to help developers to spot easier in the console what's happening quickly.
+
+## Documentation
+
+Documentation can be found at [https://hexdocs.pm/pretty_print_formatter](https://hexdocs.pm/pretty_print_formatter).
 
 ## Installation
 
@@ -15,7 +21,16 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/pretty_print_formatter](https://hexdocs.pm/pretty_print_formatter).
+After installing the dependency you need to update the config/dev.exs
+configuration file and set the new formatter.
 
+
+```
+config :logger, :console, format: {PrettyPrintFormatter, :write}
+```
+
+## License
+
+pretty_print_formatter is licensed under the MIT license.
+
+See [LICENSE](./LICENSE) for the full license text.
