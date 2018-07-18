@@ -2,19 +2,16 @@ defmodule PrettyPrintFormatter.Ecto do
   import PrettyPrintFormatter.Ecto.SqlTokenizer
   # https://github.com/elixir-ecto/ecto/blob/e243ff4597ad244ae5870dc1c9d3eb86fd91a507/lib/ecto/log_entry.ex#L77-L79
 
-  @dim :faint
-  @strong [:normal, :bright]
+  @select "\e[34m"
+  @update "\e[33m"
+  @delete "\e[31m"
+  @insert "\e[32m"
 
-  @select :blue
-  @update :yellow
-  @delete :red
-  @insert :green
-
-  def run(["QUERY", "begin", "OK", _, _, _, _, _, _query, _, _]) do
+  def run(["QUERY", _, "OK", _, _, _, _, _, "begin", _, _]) do
     "BEGIN TRANSACTION"
   end
 
-  def run(["QUERY", "commit", "OK", _, _, _, _, _, _query, _, _]) do
+  def run(["QUERY", _, "OK", _, _, _, _, _, "commit", _, _]) do
     "COMMIT TRANSACTION"
   end
 
@@ -23,11 +20,11 @@ defmodule PrettyPrintFormatter.Ecto do
   end
 
   def run(["QUERY", _, "OK", _, _, _, _, _, query, _, params]) do
-    [pretty(query) , :reset, "\n", @dim, params,"\n"] |> IO.ANSI.format
+    [pretty(query) , :reset, " ", :faint, params]
   end
 
   def run(["QUERY", _, "ERROR", _, _, _, _, _, query, _, params]) do
-    ["ERROR:", pretty(query), :reset, "\n", @dim, params,"\n"] |> IO.ANSI.format
+    ["ERROR:", pretty(query), :reset, " ", :faint, params]
   end
 
   def run(message) do
@@ -38,7 +35,6 @@ defmodule PrettyPrintFormatter.Ecto do
     message
     |> tokenize
     |> format
-    |> IO.ANSI.format
   end
 
   defp format({:ok, tokens}) do
@@ -55,36 +51,45 @@ defmodule PrettyPrintFormatter.Ecto do
 
   defp format([{:keyword, keyword = 'SELECT'}| rest]) do
     [
-      [@strong, @select, keyword],
-      format(rest)
-    ]
-  end
-
-  defp format([{:keyword, keyword = 'INSERT'}| rest]) do
-    [
-      [@strong, @insert, keyword],
+      [@select, keyword],
       format(rest)
     ]
   end
 
   defp format([{:keyword, keyword = 'UPDATE'}| rest]) do
     [
-      [@strong, @update, keyword],
+      [@update, keyword],
       format(rest)
     ]
   end
 
   defp format([{:keyword, keyword = 'DELETE'}| rest]) do
     [
-      [@strong, @delete, keyword],
+      [@delete, keyword],
       format(rest)
+    ]
+  end
+
+  defp format([{:keyword, keyword = 'INSERT'}| rest]) do
+    [
+      [@insert, keyword],
+      format(rest)
+    ]
+  end
+
+  defp format([{:keyword, keyword} | rest]) when keyword in ['FROM', 'JOIN', 'INTO'] do
+    [
+      " ",
+      keyword,
+      " ",
+      format(rest, :bright)
     ]
   end
 
   defp format([{:keyword, keyword}| rest]) do
     [
       " ",
-      [@dim, keyword],
+      [keyword],
       format(rest)
     ]
   end
@@ -102,28 +107,42 @@ defmodule PrettyPrintFormatter.Ecto do
       |> length
 
     cond do
-      count > 8 -> format([tuple | Enum.take(rest, 5)] ++ [{:name, "(#{names_count - 4} more)"}] ++ Enum.drop(rest, count))
+      # count > 8 -> format([tuple | Enum.take(rest, 5)] ++ [{:counter, names_count - 4}] ++ Enum.drop(rest, count))
+      count > 2 -> format([tuple | Enum.take(rest, 2)] ++ [{:counter, names_count - 2}] ++ Enum.drop(rest, count))
       true -> [" ", cleanup(name), format(rest)]
     end
   end
 
-  defp format([{_, value}]) do
-    value
+  defp format([{:counter, count} | rest]) do
+    [:faint, " (", :underline, "#{count} more", :no_underline, ")", :normal, format(rest)]
   end
-  defp format([{_, value}|rest]) do
-    [" ", @strong, value, format(rest)]
+
+  defp format([{_, value} | rest]) do
+    [" ", value, format(rest)]
   end
-  defp format([{:separator}]) do
-    [] # invalid case
+
+  defp format([{:separator} | rest]) do
+    [",", format(rest)]
   end
-  defp format([{:separator}|rest]) do
-    [@dim, ",", format(rest)]
+
+  defp format([{:paren_open} | rest]) do
+    [" (", format(rest)]
   end
-  defp format([{value}]) do
-    [to_string(value)]
+
+  defp format([{:paren_close} | rest]) do
+    [")", format(rest)]
   end
-  defp format([{value}|rest]) do
+
+  defp format([{value} | rest]) do
     [" ", to_string(value), format(rest)]
+  end
+
+  defp format([{:name, name} = tuple | rest], :bright) do
+    [:bright, cleanup(name), :normal, format(rest)]
+  end
+
+  defp format(rest, _) do
+    format(rest)
   end
 
   defp cleanup(name) do
@@ -133,8 +152,8 @@ defmodule PrettyPrintFormatter.Ecto do
       |> String.replace("\"", "")
 
     case String.split(name, ".") do
-      [prefix, suffix] -> [@dim, prefix, ".", @strong, suffix]
-      _ -> [@strong, name]
+      [prefix, suffix] -> [:faint, prefix, ".", :normal, suffix]
+      _ -> [name]
     end
   end
 end

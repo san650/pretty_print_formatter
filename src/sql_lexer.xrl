@@ -15,8 +15,8 @@ Rules.
 {KEYWORDS}    : {token, {keyword, TokenLine, TokenChars}}.
 {INT}         : {token, {integer, TokenLine, TokenChars}}.
 {NAME}        : {token, {name, TokenLine, TokenChars}}.
-\(            : {token, {'(', TokenLine}}.
-\)            : {token, {')', TokenLine}}.
+\(            : {token, {paren_open, TokenLine}}.
+\)            : {token, {paren_close, TokenLine}}.
 {WHITESPACE}+ : skip_token.
 {SEPARATOR}   : {token, {separator, TokenLine}}.
 {OPERATORS}   : {token, {operator, TokenLine, TokenChars}}.

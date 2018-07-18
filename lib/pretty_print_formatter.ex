@@ -17,12 +17,18 @@ defmodule PrettyPrintFormatter do
   end
 
   defp pretty(level, message, timestamp, [request_id: request_id]) do
-    id = [:yellow, "[", request_id |> String.slice(0..5), "]", :reset]
+    id = [:yellow, :faint, "[", request_id |> String.slice(0..5), "] ", :reset]
 
-    pretty(level, [id | message], timestamp, [])
+    flush(level, [id | message], timestamp, [])
   end
 
-  defp pretty(level, message, _timestamp, _metadata) do
+  defp pretty(level, message, timestamp, _) do
+    id = [:yellow, :faint, "[------] ", :reset]
+
+    flush(level, [id | message], timestamp, [])
+  end
+
+  defp flush(level, message, _timestamp, _metadata) do
     try do
       [message, "\n"] |> IO.ANSI.format
     rescue

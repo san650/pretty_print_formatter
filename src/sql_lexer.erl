@@ -792,12 +792,12 @@ yyaction_2(TokenChars, TokenLine) ->
 -compile({inline,yyaction_3/1}).
 -file("src/sql_lexer.xrl", 16).
 yyaction_3(TokenLine) ->
-     { token, { '(', TokenLine } } .
+     { token, { paren_open, TokenLine } } .
 
 -compile({inline,yyaction_4/1}).
 -file("src/sql_lexer.xrl", 17).
 yyaction_4(TokenLine) ->
-     { token, { ')', TokenLine } } .
+     { token, { paren_close, TokenLine } } .
 
 -compile({inline,yyaction_5/0}).
 -file("src/sql_lexer.xrl", 18).
