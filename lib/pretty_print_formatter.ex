@@ -28,7 +28,31 @@ defmodule PrettyPrintFormatter do
   end
 
   # Test for phoenix log message
+  # Newer version of phoenix
+  def write(level, ["Received " | _] = message, timestamp, metadata) do
+    formatted = @phoenix.run(message)
+    color =
+      metadata
+      |> Keyword.get(:request_id)
+      |> to_color
+
+    pretty(level, formatted, timestamp, metadata, ["\n", color, String.pad_trailing("┏", 2, "━"), :reset, "\n"])
+  end
+
+  # Test for phoenix log message
   def write(level, ["Sent" | _] = message, timestamp, metadata) do
+    formatted = @phoenix.run(message)
+    color =
+      metadata
+      |> Keyword.get(:request_id)
+      |> to_color
+
+    pretty(level, [formatted, "\n", color, String.pad_trailing("┗", 2, "━"), :reset], timestamp, metadata)
+  end
+
+  # Test for phoenix log message
+  # Newer version of phoenix
+  def write(level, ["Sent " | _] = message, timestamp, metadata) do
     formatted = @phoenix.run(message)
     color =
       metadata
@@ -62,7 +86,7 @@ defmodule PrettyPrintFormatter do
     flush(level, [id | message], timestamp, [])
   end
 
-  defp pretty(level, message, timestamp, _, prefix) do
+  defp pretty(level, message, timestamp, _, _prefix) do
     id = [:white, @alternate_caret, " ", :reset]
 
     flush(level, [id | message], timestamp, [])

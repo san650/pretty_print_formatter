@@ -7,7 +7,17 @@ defmodule PrettyPrintFormatter.Phoenix do
     [verb, " ", route]
   end
 
+  # Newer version
+  def run(["Received ", verb, _, route]) do
+    [verb, " ", route]
+  end
+
   def run(["Sent", _, http_status, " in ", [time, unit]]) do
+    ["Sent ", http_status, " in ", time, unit]
+  end
+
+  # Newer version
+  def run(["Sent ", _, http_status, " in ", [time, unit]]) do
     ["Sent ", http_status, " in ", time, unit]
   end
 
