@@ -1,6 +1,10 @@
 defmodule PrettyPrintFormatter.Ecto do
-  import PrettyPrintFormatter.Ecto.SqlTokenizer
+  @moduledoc """
+  Format ecto's specific log messages
+  """
+
   # https://github.com/elixir-ecto/ecto/blob/e243ff4597ad244ae5870dc1c9d3eb86fd91a507/lib/ecto/log_entry.ex#L77-L79
+  import PrettyPrintFormatter.Ecto.SqlTokenizer
 
   @select "\e[34m"
   @update "\e[33m"
@@ -27,6 +31,7 @@ defmodule PrettyPrintFormatter.Ecto do
     ["ERROR:", pretty(query), :reset, " ", :faint, params]
   end
 
+  # Catch everything that we don't know how to handle
   def run(message) do
     message
   end

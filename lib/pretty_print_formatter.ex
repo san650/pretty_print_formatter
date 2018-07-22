@@ -1,29 +1,93 @@
 defmodule PrettyPrintFormatter do
+  @moduledoc """
+  Elixir logger formatter for pretty print log messages in the console.
+  """
   @ecto PrettyPrintFormatter.Ecto
-  #@phoenix PrettyPrintFormatter.Phoenix
+  @phoenix PrettyPrintFormatter.Phoenix
   @default PrettyPrintFormatter.Default
 
-  # Test ecto
-  def write(level, ["QUERY", _, _, _, _, _, _, _, _, _, _] = message, timestamp, metadata) do
+  @caret "┃"
+  @alternate_caret "●"
+
+  # Test for ecto log message
+  def write(level, ["QUERY" | _] = message, timestamp, metadata) do
     formatted = @ecto.run(message)
 
     pretty(level, formatted, timestamp, metadata)
   end
 
+  # Test for phoenix log message
+  def write(level, [verb | _] = message, timestamp, metadata) when verb in ["GET", "POST", "PUT", "DELETE", "OPTIONS"] do
+    formatted = @phoenix.run(message)
+    color =
+      metadata
+      |> Keyword.get(:request_id)
+      |> to_color
+
+    pretty(level, formatted, timestamp, metadata, ["\n", color, String.pad_trailing("┏", 2, "━"), :reset, "\n"])
+  end
+
+  # Test for phoenix log message
+  # Newer version of phoenix
+  def write(level, ["Received " | _] = message, timestamp, metadata) do
+    formatted = @phoenix.run(message)
+    color =
+      metadata
+      |> Keyword.get(:request_id)
+      |> to_color
+
+    pretty(level, formatted, timestamp, metadata, ["\n", color, String.pad_trailing("┏", 2, "━"), :reset, "\n"])
+  end
+
+  # Test for phoenix log message
+  def write(level, ["Sent" | _] = message, timestamp, metadata) do
+    formatted = @phoenix.run(message)
+    color =
+      metadata
+      |> Keyword.get(:request_id)
+      |> to_color
+
+    pretty(level, [formatted, "\n", color, String.pad_trailing("┗", 2, "━"), :reset], timestamp, metadata)
+  end
+
+  # Test for phoenix log message
+  # Newer version of phoenix
+  def write(level, ["Sent " | _] = message, timestamp, metadata) do
+    formatted = @phoenix.run(message)
+    color =
+      metadata
+      |> Keyword.get(:request_id)
+      |> to_color
+
+    pretty(level, [formatted, "\n", color, String.pad_trailing("┗", 2, "━"), :reset], timestamp, metadata)
+  end
+
+  # Test for phoenix log message
+  def write(level, ["Processing with " | _] = message, timestamp, metadata) do
+    formatted = @phoenix.run(message)
+
+    pretty(level, formatted, timestamp, metadata)
+  end
+
+  # Unknown log message
   def write(level, message, timestamp, metadata) do
+    # IO.inspect(message, label: :message)
+    # IO.inspect(metadata, label: :metadata)
     formatted = @default.run(message)
 
     pretty(level, formatted, timestamp, metadata)
   end
 
-  defp pretty(level, message, timestamp, [request_id: request_id]) do
-    id = [:yellow, :faint, "[", request_id |> String.slice(0..5), "] ", :reset]
+  defp pretty(level, message, timestamp, metadata, prefix \\ "")
+
+  defp pretty(level, message, timestamp, [request_id: request_id], prefix) do
+    id = [prefix, to_color(request_id), @caret, " ", :reset]
 
     flush(level, [id | message], timestamp, [])
   end
 
-  defp pretty(level, message, timestamp, _) do
-    id = [:yellow, :faint, "[------] ", :reset]
+  defp pretty(level, message, timestamp, _, _prefix) do
+    id = [:white, @alternate_caret, " ", :reset]
 
     flush(level, [id | message], timestamp, [])
   end
@@ -34,5 +98,33 @@ defmodule PrettyPrintFormatter do
     rescue
       error -> [inspect(error), message]
     end
+  end
+
+  @colors [
+    :blue,
+    :light_blue,
+    :cyan,
+    :light_cyan,
+    :green,
+    :light_green,
+    :magenta,
+    :light_magenta,
+    :red,
+    :light_red,
+    :white,
+    :light_white,
+    :yellow,
+    :light_yellow,
+  ]
+
+  defp to_color(nil), do: :white
+  defp to_color(id) do
+    index =
+      id
+      |> to_charlist
+      |> Enum.reduce(fn(x, acc) -> x + acc end)
+      |> rem(length(@colors))
+
+    Enum.at(@colors, index)
   end
 end
