@@ -20,5 +20,24 @@ defmodule PrettyPrintFormatter.Ecto.SqlTokenizerTest do
         {:integer, '5'}
       ]}
     end
+
+    test "basic insert statement" do
+      IO.inspect SqlTokenizer.tokenize("INSERT INTO \"foo\" (\"id\", \"inserted_at\") VALUES ($1,DEFAULT)") ==  {:ok, [
+        {:keyword, 'INSERT'},
+        {:keyword, 'INTO'},
+        {:name, '"foo"'},
+        {:paren_open},
+        {:name, '"id"'},
+        {:separator},
+        {:name, '"inserted_at"'},
+        {:paren_close},
+        {:keyword, 'VALUES'},
+        {:paren_open},
+        {:variable, '$1'},
+        {:separator},
+        {:keyword, 'DEFAULT'},
+        {:paren_close}
+      ]}
+    end
   end
 end
