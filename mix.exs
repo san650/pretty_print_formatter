@@ -4,7 +4,7 @@ defmodule PrettyPrintFormatter.Mixfile do
   def project do
     [
       app: :pretty_print_formatter,
-      version: "0.1.2",
+      version: "0.1.3",
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       deps: deps(),
@@ -27,7 +27,7 @@ defmodule PrettyPrintFormatter.Mixfile do
 
   defp package do
     [
-      files: ["lib", "src", "mix.exs", "README.md", "LICENSE"],
+      files: ["lib", "src/sql_lexer.xrl", "mix.exs", "README.md", "LICENSE"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/san650/pretty_print_formatter"},
       maintainers: ["Santiago Ferreira", "Juan Azambuja"],
