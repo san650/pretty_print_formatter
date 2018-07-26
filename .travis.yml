@@ -1,0 +1,18 @@
+language: elixir
+
+sudo: false
+
+elixir:
+  - 1.6
+
+otp_release:
+  - 21.0
+
+branches:
+  only:
+    - master
+
+env:
+  - MIX_ENV=test
+
+script: mix test

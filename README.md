@@ -1,4 +1,5 @@
 # pretty_print_formatter
+[![Build Status](https://travis-ci.org/san650/pretty_print_formatter.svg?branch=master)](https://travis-ci.org/san650/pretty_print_formatter)
 
 ![Screenshot](screenshot.png)
 
