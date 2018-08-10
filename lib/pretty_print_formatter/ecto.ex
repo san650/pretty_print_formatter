@@ -28,7 +28,7 @@ defmodule PrettyPrintFormatter.Ecto do
   end
 
   def run(["QUERY", _, "ERROR", _, _, _, _, _, query, _, params]) do
-    ["ERROR:", pretty(query), :reset, " ", :faint, params]
+    ["ERROR:", query, :reset, " ", :faint, params]
   end
 
   # Catch everything that we don't know how to handle
