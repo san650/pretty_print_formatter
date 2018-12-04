@@ -21,7 +21,7 @@ defmodule PrettyPrintFormatter.Mixfile do
 
   defp deps do
     [
-      {:ex_doc, ">= 0.0.0", only: :dev},
+      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
     ]
   end
 
