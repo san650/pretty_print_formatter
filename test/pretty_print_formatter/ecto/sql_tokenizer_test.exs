@@ -93,5 +93,25 @@ defmodule PrettyPrintFormatter.Ecto.SqlTokenizerTest do
                   {:paren_close}
                 ]}
     end
+
+    test "sqlite parameters" do
+      assert SqlTokenizer.tokenize(
+        "SELECT \"value\" FROM \"settings\" WHERE \"name\" = ?1 [\"hCard_note\"]"
+      ) ==
+        {:ok,
+          [
+            {:keyword, 'SELECT'},
+            {:name, '"value"'},
+            {:keyword, 'FROM'},
+            {:name, '"settings"'},
+            {:keyword, 'WHERE'},
+            {:name, '"name"'},
+            {:operator, '='},
+            {:variable, '?1'},
+            {:paren_open},
+            {:name, '"hCard_note"'},
+            {:paren_close},
+          ]}
+    end
   end
 end
