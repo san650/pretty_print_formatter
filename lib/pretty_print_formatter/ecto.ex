@@ -42,56 +42,58 @@ defmodule PrettyPrintFormatter.Ecto do
     |> format
   end
 
-  defp format({:ok, tokens}) do
-    format(tokens)
+  defp format(param, opts \\ %{})
+
+  defp format({:ok, tokens}, _) do
+    format(tokens, %{first: true})
   end
 
-  defp format({:error, error, original}) do
+  defp format({:error, error, original}, _) do
     ["ERROR PARSING ", inspect(error), " -- ", original]
   end
 
-  defp format([]) do
+  defp format([], _) do
     []
   end
 
-  defp format([{:keyword, keyword = 'SELECT'}| rest]) do
+  defp format([{:keyword, keyword = 'SELECT'}| rest], %{first: true}) do
     [
       [@select, keyword],
       format(rest)
     ]
   end
 
-  defp format([{:keyword, keyword = 'UPDATE'}| rest]) do
+  defp format([{:keyword, keyword = 'UPDATE'}| rest], %{first: true}) do
     [
       [@update, keyword],
       format(rest)
     ]
   end
 
-  defp format([{:keyword, keyword = 'DELETE'}| rest]) do
+  defp format([{:keyword, keyword = 'DELETE'}| rest], %{first: true}) do
     [
       [@delete, keyword],
       format(rest)
     ]
   end
 
-  defp format([{:keyword, keyword = 'INSERT'}| rest]) do
+  defp format([{:keyword, keyword = 'INSERT'}| rest], %{first: true}) do
     [
       [@insert, keyword],
       format(rest)
     ]
   end
 
-  defp format([{:keyword, keyword} | rest]) when keyword in ['FROM', 'JOIN', 'INTO'] do
+  defp format([{:keyword, keyword} | rest], _) when keyword in ['FROM', 'JOIN', 'INTO'] do
     [
       " ",
       keyword,
       " ",
-      format(rest, :bright)
+      format(rest, %{bright: true})
     ]
   end
 
-  defp format([{:keyword, keyword}| rest]) do
+  defp format([{:keyword, keyword}| rest], _) do
     [
       " ",
       [keyword],
@@ -99,7 +101,11 @@ defmodule PrettyPrintFormatter.Ecto do
     ]
   end
 
-  defp format([{:name, name} = tuple|rest]) do
+  defp format([{:name, name} | rest], %{bright: true}) do
+    [:bright, cleanup(name), :normal, format(rest)]
+  end
+
+  defp format([{:name, name} = tuple|rest], _) do
     # look ahead
     values =
       rest
@@ -118,36 +124,28 @@ defmodule PrettyPrintFormatter.Ecto do
     end
   end
 
-  defp format([{:counter, count} | rest]) do
+  defp format([{:counter, count} | rest], _) do
     [:faint, " (", :underline, "#{count} more", :no_underline, ")", :normal, format(rest)]
   end
 
-  defp format([{_, value} | rest]) do
-    [" ", value, format(rest)]
-  end
-
-  defp format([{:separator} | rest]) do
+  defp format([{:separator} | rest], _) do
     [",", format(rest)]
   end
 
-  defp format([{:paren_open} | rest]) do
+  defp format([{:paren_open} | rest], _) do
     [" (", format(rest)]
   end
 
-  defp format([{:paren_close} | rest]) do
+  defp format([{:paren_close} | rest], _) do
     [")", format(rest)]
   end
 
-  defp format([{value} | rest]) do
+  defp format([{value} | rest], _) do
     [" ", to_string(value), format(rest)]
   end
 
-  defp format([{:name, name} | rest], :bright) do
-    [:bright, cleanup(name), :normal, format(rest)]
-  end
-
-  defp format(rest, _) do
-    format(rest)
+  defp format([{_, value} | rest], _) do
+    [" ", value, format(rest)]
   end
 
   defp cleanup(name) do
