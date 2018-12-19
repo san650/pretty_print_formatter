@@ -6,10 +6,10 @@ defmodule PrettyPrintFormatter.Ecto do
   # https://github.com/elixir-ecto/ecto/blob/e243ff4597ad244ae5870dc1c9d3eb86fd91a507/lib/ecto/log_entry.ex#L77-L79
   import PrettyPrintFormatter.Ecto.SqlTokenizer
 
-  @select "\e[34m"
-  @update "\e[33m"
-  @delete "\e[31m"
-  @insert "\e[32m"
+  @select :blue
+  @update :yellow
+  @delete :red
+  @insert :green
 
   def run(["QUERY", _, "OK", _, _, _, _, _, "begin", _, _]) do
     "BEGIN TRANSACTION"
@@ -105,7 +105,7 @@ defmodule PrettyPrintFormatter.Ecto do
     [:bright, cleanup(name), :normal, format(rest)]
   end
 
-  defp format([{:name, name} = tuple|rest], _) do
+  defp format([{:name, name} = tuple|rest], opts) do
     # look ahead
     values =
       rest
@@ -120,7 +120,7 @@ defmodule PrettyPrintFormatter.Ecto do
     cond do
       # count > 8 -> format([tuple | Enum.take(rest, 5)] ++ [{:counter, names_count - 4}] ++ Enum.drop(rest, count))
       count > 2 -> format([tuple | Enum.take(rest, 2)] ++ [{:counter, names_count - 2}] ++ Enum.drop(rest, count))
-      true -> [" ", cleanup(name), format(rest)]
+      true -> [get_prefix(opts), cleanup(name), format(rest)]
     end
   end
 
@@ -133,7 +133,7 @@ defmodule PrettyPrintFormatter.Ecto do
   end
 
   defp format([{:paren_open} | rest], _) do
-    [" (", format(rest)]
+    [" (", format(rest, %{skip_space: true})]
   end
 
   defp format([{:paren_close} | rest], _) do
@@ -144,8 +144,8 @@ defmodule PrettyPrintFormatter.Ecto do
     [" ", to_string(value), format(rest)]
   end
 
-  defp format([{_, value} | rest], _) do
-    [" ", value, format(rest)]
+  defp format([{_, value} | rest], opts) do
+    [get_prefix(opts), value, format(rest)]
   end
 
   defp cleanup(name) do
@@ -158,5 +158,13 @@ defmodule PrettyPrintFormatter.Ecto do
       [prefix, suffix] -> [:faint, prefix, ".", :normal, suffix]
       _ -> [name]
     end
+  end
+
+  defp get_prefix(%{skip_space: true}) do
+    ""
+  end
+
+  defp get_prefix(_) do
+    " "
   end
 end

@@ -66,6 +66,32 @@ defmodule PrettyPrintFormatter.EctoTest do
       assert message ==
         "\e[32mINSERT SELECT" <> @reset
     end
+
+    test "parens: skip space for names" do
+      message =
+        "SELECT (id)"
+        |> ok_message
+        |> Ecto.run
+        |> IO.ANSI.format(false)
+        |> to_string
+        |> String.trim
+
+      assert message ==
+        "SELECT (id)"
+    end
+
+    test "parens: skip space for variables" do
+      message =
+        "SELECT ($1)"
+        |> ok_message
+        |> Ecto.run
+        |> IO.ANSI.format(false)
+        |> to_string
+        |> String.trim
+
+      assert message ==
+        "SELECT ($1)"
+    end
   end
 
   defp ok_message(value) do
