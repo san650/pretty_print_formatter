@@ -119,7 +119,7 @@ defmodule PrettyPrintFormatter.Ecto do
 
     cond do
       # count > 8 -> format([tuple | Enum.take(rest, 5)] ++ [{:counter, names_count - 4}] ++ Enum.drop(rest, count))
-      count > 2 -> format([tuple | Enum.take(rest, 2)] ++ [{:counter, names_count - 2}] ++ Enum.drop(rest, count))
+      count > 2 -> format([tuple | Enum.take(rest, 2)] ++ [{:counter, names_count - 2}] ++ Enum.drop(rest, count), opts)
       true -> [get_prefix(opts), cleanup(name), format(rest)]
     end
   end

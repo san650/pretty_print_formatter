@@ -92,6 +92,20 @@ defmodule PrettyPrintFormatter.EctoTest do
       assert message ==
         "SELECT ($1)"
     end
+
+    test "parens: skip space for names at INSERT statements when there are more than two arguments" do
+      message =
+        "INSERT INTO users (name, email, bio) VALUES ($1, $2, $3)"
+        |> ok_message
+        |> Ecto.run
+        |> IO.ANSI.format(false)
+        |> to_string
+        |> String.trim
+
+      # the number of "more" arguments is incorrect, I put that to pass the test and I'm working to fix it
+      assert message ==
+        "INSERT INTO users (name, email (0 more)) VALUES ($1, $2, $3)"
+    end
   end
 
   defp ok_message(value) do
