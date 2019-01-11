@@ -117,9 +117,11 @@ defmodule PrettyPrintFormatter.Ecto do
       |> Enum.reject(fn {:separator} -> true; _ -> false end)
       |> length
 
+    # to take into account the first name (that comes in 'tuple')
+    names_count = names_count + 1
+
     cond do
-      # count > 8 -> format([tuple | Enum.take(rest, 5)] ++ [{:counter, names_count - 4}] ++ Enum.drop(rest, count))
-      count > 2 -> format([tuple | Enum.take(rest, 2)] ++ [{:counter, names_count - 2}] ++ Enum.drop(rest, count), opts)
+      names_count > 2 -> format([tuple | Enum.take(rest, 2)] ++ [{:counter, names_count - 2}] ++ Enum.drop(rest, count), opts)
       true -> [get_prefix(opts), cleanup(name), format(rest)]
     end
   end

@@ -70,11 +70,7 @@ defmodule PrettyPrintFormatter.EctoTest do
     test "parens: skip space for names" do
       message =
         "SELECT (id)"
-        |> ok_message
-        |> Ecto.run
-        |> IO.ANSI.format(false)
-        |> to_string
-        |> String.trim
+        |> statement_message
 
       assert message ==
         "SELECT (id)"
@@ -83,11 +79,7 @@ defmodule PrettyPrintFormatter.EctoTest do
     test "parens: skip space for variables" do
       message =
         "SELECT ($1)"
-        |> ok_message
-        |> Ecto.run
-        |> IO.ANSI.format(false)
-        |> to_string
-        |> String.trim
+        |> statement_message
 
       assert message ==
         "SELECT ($1)"
@@ -96,19 +88,52 @@ defmodule PrettyPrintFormatter.EctoTest do
     test "parens: skip space for names at INSERT statements when there are more than two arguments" do
       message =
         "INSERT INTO users (name, email, bio) VALUES ($1, $2, $3)"
-        |> ok_message
-        |> Ecto.run
-        |> IO.ANSI.format(false)
-        |> to_string
-        |> String.trim
+        |> statement_message
 
-      # the number of "more" arguments is incorrect, I put that to pass the test and I'm working to fix it
       assert message ==
-        "INSERT INTO users (name, email (0 more)) VALUES ($1, $2, $3)"
+        "INSERT INTO users (name, email (1 more)) VALUES ($1, $2, $3)"
+    end
+
+    test "number of 'more' arguments" do
+      insert_message_four_args =
+        "INSERT INTO users (name, email, bio, number_of_pets) VALUES ($1, $2, $3, $4) RETURNING id"
+        |> statement_message
+
+      insert_message_two_args =
+        "INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id"
+        |> statement_message
+
+      select_message_five_args =
+        "SELECT id, name, email, bio, age FROM users"
+        |> statement_message
+
+      select_message_one_arg =
+        "SELECT id FROM users"
+        |> statement_message
+
+      assert insert_message_four_args ==
+        "INSERT INTO users (name, email (2 more)) VALUES ($1, $2, $3, $4) RETURNING id"
+
+      assert insert_message_two_args ==
+        "INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id"
+
+      assert select_message_five_args ==
+        "SELECT id, name (3 more) FROM users"
+
+      assert select_message_one_arg ==
+        "SELECT id FROM users"
     end
   end
 
   defp ok_message(value) do
     ["QUERY", nil, "OK", nil, nil, nil, nil, nil, value, nil, []]
+  end
+
+  defp statement_message(value) do
+    ["QUERY", nil, "OK", nil, nil, nil, nil, nil, value, nil, []]
+      |> Ecto.run
+      |> IO.ANSI.format(false)
+      |> to_string
+      |> String.trim
   end
 end
