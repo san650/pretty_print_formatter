@@ -13,7 +13,7 @@ Documentation can be found at [https://hexdocs.pm/pretty_print_formatter](https:
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
+[Available in Hex](https://hex.pm/packages/pretty_print_formatter), the package can be installed
 by adding `pretty_print_formatter` to your list of dependencies in `mix.exs`:
 
 ```elixir
