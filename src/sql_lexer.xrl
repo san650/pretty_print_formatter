@@ -11,6 +11,7 @@ OPERATORS   = [*+=<>!']+
 VARIABLE    = [$?][0-9]+
 PAREN_OPEN  = [([]
 PAREN_CLOSE = [)\]]
+COMMENT     = (-)(-)[\s].*
 
 Rules.
 
@@ -24,5 +25,6 @@ Rules.
 {OPERATORS}   : {token, {operator, TokenLine, TokenChars}}.
 %% {STRING}   : {token, {string, TokenLine, TokenChars}}.
 {VARIABLE}    : {token, {variable, TokenLine, TokenChars}}.
+{COMMENT}     : {token, {comment, TokenLine, TokenChars}}.
 
 Erlang code.

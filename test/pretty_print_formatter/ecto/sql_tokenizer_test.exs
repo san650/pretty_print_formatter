@@ -115,4 +115,26 @@ defmodule PrettyPrintFormatter.Ecto.SqlTokenizerTest do
           ]}
     end
   end
+
+  test "statement with comments" do
+    assert SqlTokenizer.tokenize(
+      "SELECT \"value\" FROM \"settings\"; -- some comment
+      -- another comment; SELECT
+      SELECT \"value\" FROM \"settings\""
+    ) ==
+      {:ok,
+        [
+          {:keyword, 'SELECT'},
+          {:name, '"value"'},
+          {:keyword, 'FROM'},
+          {:name, '"settings"'},
+          {:separator},
+          {:comment, '-- some comment'},
+          {:comment, '-- another comment; SELECT'},
+          {:keyword, 'SELECT'},
+          {:name, '"value"'},
+          {:keyword, 'FROM'},
+          {:name, '"settings"'}
+        ]}
+  end
 end
