@@ -5,12 +5,13 @@ KEYWORDS    = [A-Z]+
 INT         = [0-9]+
 NAME        = [a-zA-Z0-9"_.]+
 WHITESPACE  = [\s\t\n\r]
-SEPARATOR   = ,
+SEPARATOR   = [,;]
 OPERATORS   = [*+=<>!']+
 %% STRING   = ".*"
 VARIABLE    = [$?][0-9]+
 PAREN_OPEN  = [([]
 PAREN_CLOSE = [)\]]
+COMMENT     = (-)(-)[\s].*
 
 Rules.
 
@@ -24,5 +25,6 @@ Rules.
 {OPERATORS}   : {token, {operator, TokenLine, TokenChars}}.
 %% {STRING}   : {token, {string, TokenLine, TokenChars}}.
 {VARIABLE}    : {token, {variable, TokenLine, TokenChars}}.
+{COMMENT}     : {token, {comment, TokenLine, TokenChars}}.
 
 Erlang code.
