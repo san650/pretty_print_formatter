@@ -122,6 +122,8 @@ defmodule PrettyPrintFormatter.EctoTest do
 
       assert select_message_one_arg ==
         "SELECT id FROM users"
+
+      assert "SELECT a, b (4 more) FROM users AS u0 where u0.id = 5" == "SELECT a, b, c, d, e, f FROM users AS u0 where u0.id = 5" |> statement_message
     end
   end
 
