@@ -14,7 +14,8 @@ defmodule PrettyPrintFormatter.Ecto.SqlTokenizer do
       iex> PrettyPrintFormatter.Ecto.SqlTokenizer.tokenize("&&&")
       {:error, {1, :sql_lexer, {:illegal, '&'}}, "&&&"}
   """
-  @spec tokenize(binary) :: list
+  @spec tokenize(binary) ::
+          {:ok, list()} | {:error, {number(), atom(), {atom(), char()}}, binary()}
   def tokenize(str) do
     str
     |> to_charlist
