@@ -10,6 +10,9 @@ defmodule PrettyPrintFormatter.Mixfile do
       deps: deps(),
       description: description(),
       package: package(),
+      dialyzer: [
+        plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
+      ]
     ]
   end
 
@@ -21,7 +24,8 @@ defmodule PrettyPrintFormatter.Mixfile do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.6", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.19", only: :dev, runtime: false}
     ]
   end
 

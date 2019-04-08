@@ -21,3 +21,6 @@ erl_crash.dump
 
 # Generated from src/sql_lexer.xrl
 /src/sql_lexer.erl
+
+/priv/plts/*.plt
+/priv/plts/*.plt.hash
