@@ -45,67 +45,48 @@ defmodule PrettyPrintFormatter.Ecto do
   defp format(param, opts \\ %{})
 
   defp format({:ok, tokens}, _) do
-    format(tokens, %{first: true})
+    do_format(tokens, [], %{first: true})
   end
 
   defp format({:error, error, original}, _) do
     ["ERROR PARSING ", inspect(error), " -- ", original]
   end
 
-  defp format([], _) do
-    []
+  defp do_format(param, acc, opts \\ %{})
+
+  defp do_format([], acc, _) do
+    Enum.reverse(acc)
   end
 
-  defp format([{:keyword, keyword = 'SELECT'}| rest], %{first: true}) do
-    [
-      [@select, keyword],
-      format(rest)
-    ]
+  defp do_format([{:keyword, keyword = 'SELECT'}| rest], acc, %{first: true}) do
+    do_format(rest, [[@select, keyword] | acc])
   end
 
-  defp format([{:keyword, keyword = 'UPDATE'}| rest], %{first: true}) do
-    [
-      [@update, keyword],
-      format(rest)
-    ]
+  defp do_format([{:keyword, keyword = 'UPDATE'}| rest], acc, %{first: true}) do
+    do_format(rest, [[@update, keyword] | acc])
   end
 
-  defp format([{:keyword, keyword = 'DELETE'}| rest], %{first: true}) do
-    [
-      [@delete, keyword],
-      format(rest)
-    ]
+  defp do_format([{:keyword, keyword = 'DELETE'}| rest], acc, %{first: true}) do
+    do_format(rest, [[@delete, keyword] | acc])
   end
 
-  defp format([{:keyword, keyword = 'INSERT'}| rest], %{first: true}) do
-    [
-      [@insert, keyword],
-      format(rest)
-    ]
+  defp do_format([{:keyword, keyword = 'INSERT'}| rest], acc, %{first: true}) do
+    do_format(rest, [[@insert, keyword] | acc])
   end
 
-  defp format([{:keyword, keyword} | rest], _) when keyword in ['FROM', 'JOIN', 'INTO'] do
-    [
-      " ",
-      keyword,
-      " ",
-      format(rest, %{bright: true})
-    ]
+  defp do_format([{:keyword, keyword} | rest], acc, _) when keyword in ['FROM', 'JOIN', 'INTO'] do
+    do_format(rest, [[" ", keyword, " "] | acc], %{bright: true})
   end
 
-  defp format([{:keyword, keyword}| rest], _) do
-    [
-      " ",
-      [keyword],
-      format(rest)
-    ]
+  defp do_format([{:keyword, keyword}| rest], acc, _) do
+    do_format(rest, [[" ", [keyword]] | acc])
   end
 
-  defp format([{:name, name} | rest], %{bright: true}) do
-    [:bright, cleanup(name), :normal, format(rest)]
+  defp do_format([{:name, name} | rest], acc, %{bright: true}) do
+    do_format(rest, [[:bright, cleanup(name), :normal] | acc])
   end
 
-  defp format([{:name, name} = tuple|rest], opts) do
+  defp do_format([{:name, name} = tuple|rest], acc, opts) do
     # look ahead
     values =
       rest
@@ -121,33 +102,35 @@ defmodule PrettyPrintFormatter.Ecto do
     names_count = names_count + 1
 
     cond do
-      names_count > 2 -> format([tuple | Enum.take(rest, 2)] ++ [{:counter, names_count - 2}] ++ Enum.drop(rest, count), opts)
-      true -> [get_prefix(opts), cleanup(name), format(rest)]
+      count > 2 ->
+        do_format([tuple | Enum.take(rest, 2)] ++ [{:counter, names_count - 2}] ++ Enum.drop(rest, count), acc, opts)
+      true ->
+        do_format(rest, [[get_prefix(opts), cleanup(name)] | acc])
     end
   end
 
-  defp format([{:counter, count} | rest], _) do
-    [:faint, " (", :underline, "#{count} more", :no_underline, ")", :normal, format(rest)]
+  defp do_format([{:counter, count} | rest], acc, _) do
+    do_format(rest, [[:faint, " (", :underline, "#{count} more", :no_underline, ")", :normal] | acc])
   end
 
-  defp format([{:separator} | rest], _) do
-    [",", format(rest)]
+  defp do_format([{:separator} | rest], acc, _) do
+    do_format(rest, [[","] | acc])
   end
 
-  defp format([{:paren_open} | rest], _) do
-    [" (", format(rest, %{skip_space: true})]
+  defp do_format([{:paren_open} | rest], acc, _) do
+    do_format(rest, [[" ("] | acc], %{skip_space: true})
   end
 
-  defp format([{:paren_close} | rest], _) do
-    [")", format(rest)]
+  defp do_format([{:paren_close} | rest], acc, _) do
+    do_format(rest, [[")"] | acc])
   end
 
-  defp format([{value} | rest], _) do
-    [" ", to_string(value), format(rest)]
+  defp do_format([{value} | rest], acc, _) do
+    do_format(rest, [[" ", to_string(value)] | acc])
   end
 
-  defp format([{_, value} | rest], opts) do
-    [get_prefix(opts), value, format(rest)]
+  defp do_format([{_, value} | rest], acc, opts) do
+    do_format(rest, [[get_prefix(opts), value] | acc])
   end
 
   defp cleanup(name) do
