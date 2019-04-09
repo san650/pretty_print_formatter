@@ -18,3 +18,7 @@ env:
 script:
   - mix dialyzer --list-unused-filters --halt-exit-status
   - mix test
+
+cache:
+  directories:
+    - priv/plts
