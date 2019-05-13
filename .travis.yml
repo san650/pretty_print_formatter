@@ -17,7 +17,7 @@ env:
 
 script:
   - mix dialyzer --list-unused-filters --halt-exit-status
-  - mix test
+  - mix coveralls.travis
 
 cache:
   directories:

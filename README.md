@@ -1,5 +1,6 @@
 # pretty_print_formatter
 [![Build Status](https://travis-ci.org/san650/pretty_print_formatter.svg?branch=master)](https://travis-ci.org/san650/pretty_print_formatter)
+[![Coverage Status](https://coveralls.io/repos/github/san650/pretty_print_formatter/badge.svg?branch=master)](https://coveralls.io/github/san650/pretty_print_formatter?branch=master)
 
 ![Screenshot](screenshot.png)
 
