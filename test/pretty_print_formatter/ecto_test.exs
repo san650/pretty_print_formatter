@@ -88,28 +88,37 @@ defmodule PrettyPrintFormatter.EctoTest do
     test "parens: skip space for names at INSERT statements when there are more than two arguments" do
       message =
         "INSERT INTO users (name, email, bio) VALUES ($1, $2, $3)"
-        |> statement_message
+        |> statement_message()
+
+      assert message ==
+        "INSERT INTO users (name, email, bio) VALUES ($1, $2, $3)"
+    end
+
+    test "with [short_params_list: true] parens: skip space for names at INSERT statements when there are more than two arguments" do
+      message =
+        "INSERT INTO users (name, email, bio) VALUES ($1, $2, $3)"
+        |> statement_message(short_params_list: true)
 
       assert message ==
         "INSERT INTO users (name, email (1 more)) VALUES ($1, $2, $3)"
     end
 
-    test "number of 'more' arguments" do
+    test "with [short_params_list: true] number of 'more' arguments" do
       insert_message_four_args =
         "INSERT INTO users (name, email, bio, number_of_pets) VALUES ($1, $2, $3, $4) RETURNING id"
-        |> statement_message
+        |> statement_message(short_params_list: true)
 
       insert_message_two_args =
         "INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id"
-        |> statement_message
+        |> statement_message(short_params_list: true)
 
       select_message_five_args =
         "SELECT id, name, email, bio, age FROM users"
-        |> statement_message
+        |> statement_message(short_params_list: true)
 
       select_message_one_arg =
         "SELECT id FROM users"
-        |> statement_message
+        |> statement_message(short_params_list: true)
 
       assert insert_message_four_args ==
         "INSERT INTO users (name, email (2 more)) VALUES ($1, $2, $3, $4) RETURNING id"
@@ -123,7 +132,7 @@ defmodule PrettyPrintFormatter.EctoTest do
       assert select_message_one_arg ==
         "SELECT id FROM users"
 
-      assert "SELECT a, b (4 more) FROM users AS u0 where u0.id = 5" == "SELECT a, b, c, d, e, f FROM users AS u0 where u0.id = 5" |> statement_message
+      assert "SELECT a, b (4 more) FROM users AS u0 where u0.id = 5" == "SELECT a, b, c, d, e, f FROM users AS u0 where u0.id = 5" |> statement_message(short_params_list: true)
     end
   end
 
@@ -131,9 +140,9 @@ defmodule PrettyPrintFormatter.EctoTest do
     ["QUERY", nil, "OK", nil, nil, nil, nil, nil, value, nil, []]
   end
 
-  defp statement_message(value) do
+  defp statement_message(value, opts \\ []) do
     ["QUERY", nil, "OK", nil, nil, nil, nil, nil, value, nil, []]
-      |> Ecto.run
+      |> Ecto.run(opts)
       |> IO.ANSI.format(false)
       |> to_string
       |> String.trim

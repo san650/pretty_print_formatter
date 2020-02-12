@@ -33,6 +33,14 @@ configuration file and set the new formatter.
 config :logger, :console, format: {PrettyPrintFormatter, :write}
 ```
 
+### Ecto formatter configuration
+To display the complete list of fields on queries you can configure `short_params_list` to `false`:
+
+```elixir
+config :pretty_print_formatter, :ecto,
+  short_params_list: false 
+```
+
 ## License
 
 pretty_print_formatter is licensed under the MIT license.
