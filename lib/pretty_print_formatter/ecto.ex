@@ -29,10 +29,10 @@ defmodule PrettyPrintFormatter.Ecto do
     "ROLLBACK TRANSACTION #{val}"
   end
 
-  def run(["QUERY", _, "OK", _, _, _, _, _, query, _, params], opts) do
+  def run(["QUERY", _, "OK", _, t_db, t_decode, t_queue, _, query, _, params], opts) do
     opts = Enum.into(opts, %{})
 
-    [pretty(query, opts), :reset, " ", :faint, params]
+    [pretty(query, opts), :reset, " ", :faint, params, time(t_db, t_decode, t_queue, opts)]
   end
 
   def run(["QUERY", _, "ERROR", _, _, _, _, _, query, _, params], _) do
@@ -42,6 +42,18 @@ defmodule PrettyPrintFormatter.Ecto do
   # Catch everything that we don't know how to handle
   def run(message, _) do
     message
+  end
+
+  defp time(db, decode, queue, _opts) do
+    [db, decode, queue]
+    |> Enum.reject(&(&1 == []))
+    |> case do
+      [] ->
+        []
+
+      time ->
+        [:light_green, :italic, time]
+    end
   end
 
   defp pretty(message, opts) do

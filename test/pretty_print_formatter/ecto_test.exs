@@ -137,11 +137,11 @@ defmodule PrettyPrintFormatter.EctoTest do
   end
 
   defp ok_message(value) do
-    ["QUERY", nil, "OK", nil, nil, nil, nil, nil, value, nil, []]
+    ["QUERY", nil, "OK", nil, [], [], [], nil, value, nil, []]
   end
 
   defp statement_message(value, opts \\ []) do
-    ["QUERY", nil, "OK", nil, nil, nil, nil, nil, value, nil, []]
+    ["QUERY", nil, "OK", nil, [], [], nil, nil, value, nil, []]
       |> Ecto.run(opts)
       |> IO.ANSI.format(false)
       |> to_string
