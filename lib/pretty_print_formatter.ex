@@ -127,8 +127,7 @@ defmodule PrettyPrintFormatter do
   defp to_color(id) do
     index =
       id
-      |> to_charlist
-      |> Enum.reduce(fn(x, acc) -> x + acc end)
+      |> :erlang.crc32()
       |> rem(length(@colors))
 
     Enum.at(@colors, index)
