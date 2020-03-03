@@ -9,9 +9,15 @@ defmodule PrettyPrintFormatter do
   @caret "┃"
   @alternate_caret "●"
 
+  @ecto_default_opts [
+    short_params_list: true
+  ]
+
   # Test for ecto log message
   def write(level, ["QUERY" | _] = message, timestamp, metadata) do
-    formatted = @ecto.run(message)
+    opts = Keyword.merge(@ecto_default_opts, get_opts(:ecto))
+
+    formatted = @ecto.run(message, opts)
 
     pretty(level, formatted, timestamp, metadata)
   end
@@ -121,10 +127,13 @@ defmodule PrettyPrintFormatter do
   defp to_color(id) do
     index =
       id
-      |> to_charlist
-      |> Enum.reduce(fn(x, acc) -> x + acc end)
+      |> :erlang.crc32()
       |> rem(length(@colors))
 
     Enum.at(@colors, index)
+  end
+
+  defp get_opts(key) do
+    Application.get_env(:pretty_print_formatter, key, [])
   end
 end
